@@ -1,44 +1,53 @@
 all: clean test build
 
 .PHONY : clean test build
+
 export ROOT_DIR=${PWD}
-export DOCKER_GO_PATH="/usr/src/myapp"
+export DOCKER_GO_PATH=/usr/src/myapp
 export DOCKER_GO_IMAGE="my-golang-app"
 
-build: go_get_main go_build_main_group
+##############################################################
 
-test: go_get_parser go_test_parser
+DOCKER_RUN= \
+	docker run -v ${ROOT_DIR}:${DOCKER_GO_PATH} \
+		-v ${ROOT_DIR}/.cache:/go \
+		-w ${DOCKER_GO_PATH}/$(DOCKER_WORKSPACE) \
+		${DOCKER_GO_IMAGE} \
+		${DOCKER_CMD}
+
+##############################################################
+
+test: go_test_parser
+build: bin
 
 clean:
-	rm -f bin/group
+	rm -f bin/*
 
 build_docker_image:
 	docker build --rm -t ${GO_BUILD_IMAGE} .
 
+go_get_parser: DOCKER_WORKSPACE = parser
+go_get_parser: DOCKER_CMD = go get
 go_get_parser:
-	docker run -v ${ROOT_DIR}:${DOCKER_GO_PATH} \
-		-v ${ROOT_DIR}/.cache:/go \
-		-w ${DOCKER_GO_PATH}/parser \
-		${DOCKER_GO_IMAGE} \
-		go get
+	$(DOCKER_RUN)
 
+go_test_parser: DOCKER_WORKSPACE = parser
+go_test_parser: DOCKER_CMD = go test -v
+go_test_parser: go_get_parser
+	$(DOCKER_RUN)
+
+go_get_main: DOCKER_WORKSPACE = main
+go_get_main: DOCKER_CMD = go get
 go_get_main:
-	docker run -v ${ROOT_DIR}:${DOCKER_GO_PATH} \
-		-v ${ROOT_DIR}/.cache:/go \
-		-w ${DOCKER_GO_PATH}/main \
-		${DOCKER_GO_IMAGE} \
-		go get
+	$(DOCKER_RUN)
 
-go_test_parser:
-	docker run -v ${ROOT_DIR}:${DOCKER_GO_PATH} \
-		-v ${ROOT_DIR}/.cache:/go \
-		-w ${DOCKER_GO_PATH}/parser \
-		${DOCKER_GO_IMAGE} \
-		go test -v
+##############################################################
 
-go_build_main_group:
-	docker run -v ${ROOT_DIR}:${DOCKER_GO_PATH} \
-		-v ${ROOT_DIR}/.cache:/go \
-		-w ${DOCKER_GO_PATH}/main \
-		${DOCKER_GO_IMAGE} \
-		go build -o ../bin/group group/group.go \
+binary := bin/group
+
+$(binary): DOCKER_WORKSPACE = main
+$(binary): DOCKER_CMD = go build -o ../$@ group/group.go
+$(binary): go_get_main
+	$(DOCKER_RUN)
+
+bin: bin/group
