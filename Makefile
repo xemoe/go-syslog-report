@@ -13,33 +13,30 @@ DOCKER_RUN= \
 		-v ${ROOT_DIR}/.cache:/go \
 		-w ${DOCKER_GO_PATH}/$(DOCKER_WORKSPACE) \
 		${DOCKER_GO_IMAGE} \
-		${DOCKER_CMD}
 
 ##############################################################
 
-test: go_test_parser
+test: unit
 build: bin
 
 clean:
 	rm -f bin/*
 
-build_docker_image:
+image:
 	docker build --rm -t ${GO_BUILD_IMAGE} .
 
-go_get_parser: DOCKER_WORKSPACE = parser
-go_get_parser: DOCKER_CMD = go get
-go_get_parser:
-	$(DOCKER_RUN)
+##############################################################
 
-go_test_parser: DOCKER_WORKSPACE = parser
-go_test_parser: DOCKER_CMD = go test -v
-go_test_parser: go_get_parser
-	$(DOCKER_RUN)
+modules := parser
 
-go_get_main: DOCKER_WORKSPACE = main
-go_get_main: DOCKER_CMD = go get
-go_get_main:
-	$(DOCKER_RUN)
+$(modules): DOCKER_WORKSPACE = $@
+$(modules):  FORCE
+	$(DOCKER_RUN) go get
+	$(DOCKER_RUN) go test -v
+
+.PHONY: FORCE
+
+unit: parser
 
 ##############################################################
 
@@ -48,9 +45,8 @@ binary := bin/group bin/count bin/meta
 $(binary): DOCKER_WORKSPACE = main
 $(binary): BASEBIN=$(notdir $(basename $@))
 $(binary): DOCKER_CMD = go build -o ../$@ $(BASEBIN)/$(BASEBIN).go
-$(binary): go_get_main
-	$(DOCKER_RUN)
+$(binary):
+	$(DOCKER_RUN) go get
+	$(DOCKER_RUN) go build -o ../$@ $(BASEBIN)/$(BASEBIN).go
 
 bin: bin/group bin/count bin/meta
-
-##############################################################
