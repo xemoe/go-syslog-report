@@ -1,7 +1,16 @@
 package main
 
+import (
+	"flag"
+	parser "github.com/xemoe/go-syslog-report/parser"
+)
+
+var (
+	filename = flag.String("f", "syslog.log.gz", "the file to process")
+)
+
 func main() {
-	filename := "test.log.gz"
-	result := GetMetaInfo(filename)
-	PrintArray(result)
+	flag.Parse()
+	result := parser.GetMetaInfo(*filename)
+	parser.PrintArray(result)
 }

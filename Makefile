@@ -43,11 +43,14 @@ go_get_main:
 
 ##############################################################
 
-binary := bin/group
+binary := bin/group bin/count bin/meta
 
 $(binary): DOCKER_WORKSPACE = main
-$(binary): DOCKER_CMD = go build -o ../$@ group/group.go
+$(binary): BASEBIN=$(notdir $(basename $@))
+$(binary): DOCKER_CMD = go build -o ../$@ $(BASEBIN)/$(BASEBIN).go
 $(binary): go_get_main
 	$(DOCKER_RUN)
 
-bin: bin/group
+bin: bin/group bin/count bin/meta
+
+##############################################################

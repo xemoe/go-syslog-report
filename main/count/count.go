@@ -1,16 +1,30 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	parser "github.com/xemoe/go-syslog-report/parser"
+	"log"
+	"strings"
+)
+
+var (
+	filename = flag.String("f", "syslog.log.gz", "the file to process")
 )
 
 func main() {
-	files := []string{
-		"large1.log.gz",
-		"large2.log.gz",
-		"large3.log.gz",
-		"large4.log.gz",
+
+	flag.Parse()
+	fmt.Errorf("Read input: %q\n", *filename)
+
+	files := strings.Split(*filename, ",")
+	_, err := parser.ValidateFilesIsExists(files)
+	if err != nil {
+		log.Fatal(err)
 	}
-	result := CountMultiplesSyslogLines(files)
+
+	fmt.Errorf("Read files: %q\n", files)
+
+	result := parser.CountMultiplesSyslogLines(files)
 	fmt.Println(result)
 }
