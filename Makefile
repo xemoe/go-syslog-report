@@ -52,5 +52,3 @@ $(binary): go_get_main
 	$(DOCKER_RUN)
 
 bin: bin/group bin/count bin/meta
-
-##############################################################
