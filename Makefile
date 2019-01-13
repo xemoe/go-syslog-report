@@ -30,7 +30,7 @@ image:
 modules := parser
 
 $(modules): DOCKER_WORKSPACE = $@
-$(modules):  FORCE
+$(modules): FORCE
 	$(DOCKER_RUN) go get
 	$(DOCKER_RUN) go test -v
 
@@ -44,7 +44,6 @@ binary := bin/group bin/count bin/meta
 
 $(binary): DOCKER_WORKSPACE = main
 $(binary): BASEBIN=$(notdir $(basename $@))
-$(binary): DOCKER_CMD = go build -o ../$@ $(BASEBIN)/$(BASEBIN).go
 $(binary):
 	$(DOCKER_RUN) go get
 	$(DOCKER_RUN) go build -o ../$@ $(BASEBIN)/$(BASEBIN).go
