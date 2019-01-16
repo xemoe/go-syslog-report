@@ -1,8 +1,10 @@
-package parser
+package workers
 
 import (
 	"bufio"
 	gzip "github.com/klauspost/pgzip"
+	mapper "github.com/xemoe/go-syslog-report/mapper"
+	types "github.com/xemoe/go-syslog-report/types"
 	"log"
 	"os"
 	"reflect"
@@ -10,7 +12,7 @@ import (
 	"sync"
 )
 
-func GroupCountMultiplesSync(files []string, index SyslogLineIndex) []GroupCountSlices {
+func GroupCountMultiplesSync(files []string, index types.SyslogLineIndex) []types.GroupCountSlices {
 
 	result := map[string]int{}
 
@@ -21,9 +23,9 @@ func GroupCountMultiplesSync(files []string, index SyslogLineIndex) []GroupCount
 		}
 	}
 
-	myslices := []GroupCountSlices{}
+	myslices := []types.GroupCountSlices{}
 	for uniqkey, uniqval := range result {
-		myslices = append(myslices, GroupCountSlices{uniqkey, uniqval})
+		myslices = append(myslices, types.GroupCountSlices{uniqkey, uniqval})
 	}
 
 	//
@@ -34,9 +36,7 @@ func GroupCountMultiplesSync(files []string, index SyslogLineIndex) []GroupCount
 	return myslices
 }
 
-// func readfiles(jobs <-chan string, results chan<- string, wg *sync.WaitGroup) {
-
-func GroupCountMultiples(files []string, index SyslogLineIndex) []GroupCountSlices {
+func GroupCountMultiples(files []string, index types.SyslogLineIndex) []types.GroupCountSlices {
 
 	wg := new(sync.WaitGroup)
 	result := map[string]int{}
@@ -44,7 +44,7 @@ func GroupCountMultiples(files []string, index SyslogLineIndex) []GroupCountSlic
 
 	for i := 0; i < len(files); i++ {
 		wg.Add(1)
-		go func(filename string, index SyslogLineIndex, crs chan<- map[string]int) {
+		go func(filename string, index types.SyslogLineIndex, crs chan<- map[string]int) {
 			crs <- GroupCount(filename, index)
 			defer wg.Done()
 		}(files[i], index, crs)
@@ -64,9 +64,9 @@ func GroupCountMultiples(files []string, index SyslogLineIndex) []GroupCountSlic
 		}
 	}
 
-	myslices := []GroupCountSlices{}
+	myslices := []types.GroupCountSlices{}
 	for uniqkey, uniqval := range result {
-		myslices = append(myslices, GroupCountSlices{uniqkey, uniqval})
+		myslices = append(myslices, types.GroupCountSlices{uniqkey, uniqval})
 	}
 
 	//
@@ -77,7 +77,7 @@ func GroupCountMultiples(files []string, index SyslogLineIndex) []GroupCountSlic
 	return myslices
 }
 
-func GroupCount(filename string, index SyslogLineIndex) map[string]int {
+func GroupCount(filename string, index types.SyslogLineIndex) map[string]int {
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -102,7 +102,7 @@ func GroupCount(filename string, index SyslogLineIndex) map[string]int {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		uniqkey, isok := SyslogGroupMapper(ref, numfields, line)
+		uniqkey, isok := mapper.SyslogGroupMapper(ref, numfields, line)
 		if isok {
 			result[uniqkey] += 1
 		}
@@ -111,7 +111,7 @@ func GroupCount(filename string, index SyslogLineIndex) map[string]int {
 	return result
 }
 
-func GroupCountWithChan(filename string, index SyslogLineIndex) map[string]int {
+func GroupCountWithChan(filename string, index types.SyslogLineIndex) map[string]int {
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -161,7 +161,7 @@ func GroupCountWithChan(filename string, index SyslogLineIndex) map[string]int {
 func mapping(ref reflect.Value, numfields int, jobs <-chan string, results chan<- string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for line := range jobs {
-		item, isok := SyslogGroupMapper(ref, numfields, line)
+		item, isok := mapper.SyslogGroupMapper(ref, numfields, line)
 		if isok {
 			results <- item
 		}

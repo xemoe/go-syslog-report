@@ -1,4 +1,4 @@
-package parser
+package types
 
 type MetaInfo struct {
 	Separator     string

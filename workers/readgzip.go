@@ -1,10 +1,12 @@
-package parser
+package workers
 
 import (
 	"bufio"
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	mapper "github.com/xemoe/go-syslog-report/mapper"
+	types "github.com/xemoe/go-syslog-report/types"
 	"log"
 	"os"
 	"reflect"
@@ -17,8 +19,8 @@ func PrintArray(result interface{}) {
 	fmt.Println(string(p))
 }
 
-func GetDefaultIndex() SyslogLineIndex {
-	return SyslogLineIndex{
+func GetDefaultIndex() types.SyslogLineIndex {
+	return types.SyslogLineIndex{
 		Ts:       0,
 		Uid:      1,
 		Orig_h:   2,
@@ -32,7 +34,7 @@ func GetDefaultIndex() SyslogLineIndex {
 	}
 }
 
-func GetSyslogLines(filename string, index SyslogLineIndex) *SyslogLines {
+func GetSyslogLines(filename string, index types.SyslogLineIndex) *types.SyslogLines {
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -49,20 +51,15 @@ func GetSyslogLines(filename string, index SyslogLineIndex) *SyslogLines {
 	scanner := bufio.NewScanner(gz)
 
 	//
-	// Reset
-	//
-	fVal = reflect.New(fType)
-
-	//
 	// Processing result
 	//
-	var result = SyslogLines{Index: index}
+	var result = types.SyslogLines{Index: index}
 	ref := reflect.ValueOf(index)
 	numfields := ref.NumField()
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		item, isok := SyslogMapper(ref, numfields, line)
+		item, isok := mapper.SyslogMapper(ref, numfields, line)
 		if isok {
 			result.Contents = append(
 				result.Contents,
@@ -73,7 +70,7 @@ func GetSyslogLines(filename string, index SyslogLineIndex) *SyslogLines {
 	return &result
 }
 
-func GetMetaInfo(filename string) *MetaInfo {
+func GetMetaInfo(filename string) *types.MetaInfo {
 
 	file, err := os.Open(filename)
 	if err != nil {
@@ -92,7 +89,7 @@ func GetMetaInfo(filename string) *MetaInfo {
 	//
 	// Processing result
 	//
-	result := new(MetaInfo)
+	result := new(types.MetaInfo)
 
 	scanner.Split(bufio.ScanLines)
 	rxpmeta := regexp.MustCompile(`^#([^\s]+)\s+(.+)`)

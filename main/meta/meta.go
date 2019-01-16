@@ -2,7 +2,8 @@ package main
 
 import (
 	"flag"
-	parser "github.com/xemoe/go-syslog-report/parser"
+	workers "github.com/xemoe/go-syslog-report/workers"
+	"log"
 )
 
 var (
@@ -11,6 +12,10 @@ var (
 
 func main() {
 	flag.Parse()
-	result := parser.GetMetaInfo(*filename)
-	parser.PrintArray(result)
+
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.Printf("Read meta info from file:%s", *filename)
+
+	result := workers.GetMetaInfo(*filename)
+	workers.PrintArray(result)
 }

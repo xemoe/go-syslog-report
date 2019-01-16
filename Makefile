@@ -27,7 +27,7 @@ image:
 
 ##############################################################
 
-modules := parser
+modules := workers
 
 $(modules): DOCKER_WORKSPACE = $@
 $(modules): FORCE
@@ -36,7 +36,7 @@ $(modules): FORCE
 
 .PHONY: FORCE
 
-unit: parser
+unit: workers
 
 ##############################################################
 

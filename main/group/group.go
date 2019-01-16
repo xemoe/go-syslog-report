@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	parser "github.com/xemoe/go-syslog-report/parser"
+	types "github.com/xemoe/go-syslog-report/types"
+	validators "github.com/xemoe/go-syslog-report/validators"
+	workers "github.com/xemoe/go-syslog-report/workers"
 	"log"
 	"strings"
 )
@@ -15,22 +17,22 @@ var (
 func main() {
 
 	flag.Parse()
-	fmt.Errorf("Read input: %q\n", *filename)
+	log.Printf("Read syslog from input:%s", *filename)
 
 	files := strings.Split(*filename, ",")
-	_, err := parser.ValidateFilesIsExists(files)
+	_, err := validators.ValidateFilesIsExists(files)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Errorf("Read files: %q\n", files)
+	log.Printf("Read syslog from files:%q", files)
 
 	//
 	// @TODO
 	// to use with flag
 	// -g id.orig_h,Facility
 	//
-	skipIndex := parser.SyslogLineIndex{
+	skipIndex := types.SyslogLineIndex{
 		Ts:       -1,
 		Uid:      -1,
 		Orig_h:   2,
@@ -43,7 +45,7 @@ func main() {
 		Message:  -1,
 	}
 
-	result := parser.GroupCountMultiples(files, skipIndex)
+	result := workers.GroupCountMultiples(files, skipIndex)
 	for _, v := range result {
 		fmt.Printf("%s;%d\n", v.Key, v.Value)
 	}

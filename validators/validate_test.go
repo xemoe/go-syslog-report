@@ -1,7 +1,7 @@
-package parser
+package validators
 
 import (
-	"github.com/go-test/deep"
+	deep "github.com/go-test/deep"
 	"testing"
 )
 
