@@ -27,7 +27,7 @@ image:
 
 ##############################################################
 
-modules := workers
+modules := workers validators
 
 $(modules): DOCKER_WORKSPACE = $@
 $(modules): FORCE
@@ -36,7 +36,7 @@ $(modules): FORCE
 
 .PHONY: FORCE
 
-unit: workers
+unit: workers validators
 
 ##############################################################
 

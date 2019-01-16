@@ -5,6 +5,28 @@ import (
 	"testing"
 )
 
+func TestValidateFileIsExists_WhenExists(t *testing.T) {
+
+	expected := true
+
+	result, _ := ValidateFileIsExists("files/test1.log.gz")
+
+	if diff := deep.Equal(expected, result); diff != nil {
+		t.Error(diff)
+	}
+}
+
+func TestValidateFileIsExists_WhenNotExists(t *testing.T) {
+
+	expected := false
+
+	result, _ := ValidateFileIsExists("files/test4.log.gz")
+
+	if diff := deep.Equal(expected, result); diff != nil {
+		t.Error(diff)
+	}
+}
+
 func TestValidateFilesIsExists_WhenExists(t *testing.T) {
 
 	expected := true
