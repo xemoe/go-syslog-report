@@ -2,6 +2,7 @@ package workers
 
 import (
 	deep "github.com/go-test/deep"
+	input "github.com/xemoe/go-syslog-report/input"
 	types "github.com/xemoe/go-syslog-report/types"
 	"testing"
 )
@@ -9,7 +10,7 @@ import (
 func TestGetSyslogLines_WithDefaultIndex_ShouldReturnExpectedValues(t *testing.T) {
 
 	expected := &types.SyslogLines{
-		Index: GetDefaultIndex(),
+		Index: input.GetDefaultIndex(),
 		Contents: []types.SyslogLine{
 			types.SyslogLine{
 				"1546916399.834895",
@@ -39,7 +40,7 @@ func TestGetSyslogLines_WithDefaultIndex_ShouldReturnExpectedValues(t *testing.T
 	}
 
 	filename := "files/test1.log.gz"
-	result := GetSyslogLines(filename, GetDefaultIndex())
+	result := GetSyslogLines(filename, input.GetDefaultIndex())
 
 	if diff := deep.Equal(expected, result); diff != nil {
 		t.Error(diff)

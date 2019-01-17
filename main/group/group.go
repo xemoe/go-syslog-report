@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	types "github.com/xemoe/go-syslog-report/types"
+	input "github.com/xemoe/go-syslog-report/input"
 	validators "github.com/xemoe/go-syslog-report/validators"
 	workers "github.com/xemoe/go-syslog-report/workers"
 	"log"
@@ -12,6 +12,7 @@ import (
 
 var (
 	filename = flag.String("f", "syslog.log.gz", "the file to process")
+	group    = flag.String("g", "id.orig_h,facility", "the fields to process")
 )
 
 func main() {
@@ -27,26 +28,10 @@ func main() {
 
 	log.Printf("Read syslog from files:%q", files)
 
-	//
-	// @TODO
-	// to use with flag
-	// -g id.orig_h,Facility
-	//
-	skipIndex := types.SyslogLineIndex{
-		Ts:       -1,
-		Uid:      -1,
-		Orig_h:   2,
-		Orig_p:   -1,
-		Resp_h:   -1,
-		Resp_p:   -1,
-		Proto:    -1,
-		Facility: 7,
-		Severity: -1,
-		Message:  -1,
-	}
-
+	skipIndex := input.ParseIndexFields(*group)
 	result := workers.GroupCountMultiples(files, skipIndex)
+
 	for _, v := range result {
-		fmt.Printf("%s;%d\n", v.Key, v.Value)
+		fmt.Printf("%s|%d\n", v.Key, v.Value)
 	}
 }

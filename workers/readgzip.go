@@ -3,8 +3,7 @@ package workers
 import (
 	"bufio"
 	"compress/gzip"
-	"encoding/json"
-	"fmt"
+	debug "github.com/xemoe/go-syslog-report/debug"
 	mapper "github.com/xemoe/go-syslog-report/mapper"
 	types "github.com/xemoe/go-syslog-report/types"
 	"log"
@@ -15,23 +14,7 @@ import (
 )
 
 func PrintArray(result interface{}) {
-	p, _ := json.MarshalIndent(result, "", " ")
-	fmt.Println(string(p))
-}
-
-func GetDefaultIndex() types.SyslogLineIndex {
-	return types.SyslogLineIndex{
-		Ts:       0,
-		Uid:      1,
-		Orig_h:   2,
-		Orig_p:   3,
-		Resp_h:   4,
-		Resp_p:   5,
-		Proto:    6,
-		Facility: 7,
-		Severity: 8,
-		Message:  9,
-	}
+	debug.PrintArray(result)
 }
 
 func GetSyslogLines(filename string, index types.SyslogLineIndex) *types.SyslogLines {
