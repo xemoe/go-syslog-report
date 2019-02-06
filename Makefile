@@ -40,7 +40,7 @@ unit: workers validators input
 
 ##############################################################
 
-binary := bin/bro-syslog-group bin/bro-count bin/bro-meta
+binary := bin/bro-syslog-group bin/bro-syslog-group-async bin/bro-count bin/bro-meta
 
 $(binary): DOCKER_WORKSPACE = main
 $(binary): BASEBIN=$(notdir $(basename $@))
@@ -50,4 +50,4 @@ $(binary): FORCE
 
 .PHONY: FORCE
 
-bin: bin/bro-syslog-group bin/bro-count bin/bro-meta
+bin: bin/bro-syslog-group bin/bro-syslog-group-async bin/bro-count bin/bro-meta

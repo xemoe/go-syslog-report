@@ -62,3 +62,68 @@ func TestGroupCountMultiples_WithSkipIndex_ShouldReturnExpectedValues(t *testing
 		t.Error(diff)
 	}
 }
+
+func TestGroupCountMultiplesSync_WithSkipIndex_ShouldReturnExpectedValues(t *testing.T) {
+
+	skipIndex := types.SyslogLineIndex{
+		Ts:       -1,
+		Uid:      -1,
+		Orig_h:   2,
+		Orig_p:   -1,
+		Resp_h:   -1,
+		Resp_p:   -1,
+		Proto:    -1,
+		Facility: 7,
+		Severity: -1,
+		Message:  -1,
+	}
+
+	expected := []types.GroupCountSlices{
+		types.GroupCountSlices{"172.16.2.168|KERN", 108},
+	}
+
+	files := []string{
+		"files/test1.log.gz",
+		"files/test2.log.gz",
+		"files/test3.log.gz",
+	}
+	result := GroupCountMultiplesSync(files, skipIndex)
+
+	if diff := deep.Equal(expected, result); diff != nil {
+		t.Error(diff)
+	}
+}
+
+func TestGroupCountMultiplesAsync_WithSkipIndex_ShouldReturnExpectedValues(t *testing.T) {
+
+	skipIndex := types.SyslogLineIndex{
+		Ts:       -1,
+		Uid:      -1,
+		Orig_h:   2,
+		Orig_p:   -1,
+		Resp_h:   -1,
+		Resp_p:   -1,
+		Proto:    -1,
+		Facility: 7,
+		Severity: -1,
+		Message:  -1,
+	}
+
+	expected := []types.GroupCountSlices{
+		types.GroupCountSlices{"172.16.2.168|KERN", 108},
+	}
+
+	files := []string{
+		"files/test1.log.gz",
+		"files/test2.log.gz",
+		"files/test3.log.gz",
+	}
+
+	reduceParallel := 4
+	mapperParallel := 4
+	result := GroupCountMultiplesAsync(reduceParallel, mapperParallel, files, skipIndex)
+
+	if diff := deep.Equal(expected, result); diff != nil {
+		t.Error(diff)
+	}
+}
