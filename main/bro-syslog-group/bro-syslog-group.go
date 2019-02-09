@@ -13,6 +13,8 @@ import (
 var (
 	filename = flag.String("f", "syslog.log.gz", "the file to process")
 	group    = flag.String("g", "id.orig_h,facility", "the fields to process")
+	cachedir = flag.String("c", "/tmp", "cache dir")
+	cachepre = flag.String("p", "bdx", "cache prefix")
 )
 
 func main() {
@@ -28,8 +30,8 @@ func main() {
 
 	log.Printf("Read syslog from files:%q", files)
 
-	workers.CacheDir = "/tmp"
-	workers.CachePrefix = "bdtest"
+	workers.CacheDir = *cachedir
+	workers.CachePrefix = *cachepre
 
 	skipIndex := input.ParseIndexFields(*group)
 	result := workers.GroupCountMultiples(files, skipIndex)
