@@ -28,6 +28,9 @@ func main() {
 
 	log.Printf("Read syslog from files:%q", files)
 
+	workers.CacheDir = "/tmp"
+	workers.CachePrefix = "bdtest"
+
 	skipIndex := input.ParseIndexFields(*group)
 	result := workers.GroupCountMultiples(files, skipIndex)
 

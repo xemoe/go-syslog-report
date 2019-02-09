@@ -1,6 +1,7 @@
 module main
 
 require (
+	github.com/xemoe/go-syslog-report/cache v0.0.0
 	github.com/xemoe/go-syslog-report/debug v0.0.0
 	github.com/xemoe/go-syslog-report/input v0.0.0
 	github.com/xemoe/go-syslog-report/mapper v0.0.0
@@ -20,3 +21,5 @@ replace github.com/xemoe/go-syslog-report/validators => ../validators
 replace github.com/xemoe/go-syslog-report/input => ../input
 
 replace github.com/xemoe/go-syslog-report/debug => ../debug
+
+replace github.com/xemoe/go-syslog-report/cache => ../cache

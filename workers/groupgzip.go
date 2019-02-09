@@ -3,6 +3,7 @@ package workers
 import (
 	"bufio"
 	gzip "github.com/klauspost/pgzip"
+	cache "github.com/xemoe/go-syslog-report/cache"
 	mapper "github.com/xemoe/go-syslog-report/mapper"
 	types "github.com/xemoe/go-syslog-report/types"
 	"log"
@@ -11,6 +12,9 @@ import (
 	"sort"
 	"sync"
 )
+
+var CacheDir = "/tmp"
+var CachePrefix = "workers"
 
 func GroupCountMultiplesSync(files []string, index types.SyslogLineIndex) []types.GroupCountSlices {
 
@@ -79,6 +83,14 @@ func GroupCountMultiples(files []string, index types.SyslogLineIndex) []types.Gr
 
 func GroupCount(filename string, index types.SyslogLineIndex) map[string]int {
 
+	cache.CacheDir = CacheDir
+	cache.CachePrefix = CachePrefix
+
+	indexhash, filenamehash, filechecksum, result, err := cache.GetCache(filename, index)
+	if err == nil {
+		return result
+	}
+
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -96,7 +108,7 @@ func GroupCount(filename string, index types.SyslogLineIndex) map[string]int {
 	//
 	// Processing result
 	//
-	result := make(map[string]int)
+	result = make(map[string]int)
 	ref := reflect.ValueOf(index)
 	numfields := ref.NumField()
 
@@ -106,6 +118,11 @@ func GroupCount(filename string, index types.SyslogLineIndex) map[string]int {
 		if isok {
 			result[uniqkey] += 1
 		}
+	}
+
+	err = cache.SaveCache(indexhash, filenamehash, filechecksum, result)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return result
